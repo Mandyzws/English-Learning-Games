@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>神秘庄园 · 熟词生义侦探 | 三案连环</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            background: #1a1e2c;
+            font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
+            margin: 0;
+            padding: 24px;
+            min-height: 100vh;
+            font-size: 19px;
+        }
+        .game-hub {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: #fef3e2;
+            border-radius: 64px;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.4);
+            overflow: hidden;
+            padding: 24px 28px 40px;
+            font-size: 1rem;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin: 0 0 6px;
+            background: linear-gradient(135deg, #3e2a21, #b47c44);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .sub {
+            font-size: 1.25rem;
+            color: #6b4c2c;
+            border-left: 5px solid #e2a14e;
+            padding-left: 18px;
+            margin-bottom: 28px;
+        }
+        .case-lobby {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            margin-bottom: 40px;
+            justify-content: center;
+        }
+        .case-card {
+            background: #fff6ea;
+            border-radius: 48px;
+            padding: 20px;
+            width: 280px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border: 2px solid #e9cfaa;
+            font-size: 1rem;
+        }
+        .case-card.completed {
+            background: #cfe6cf;
+            border-color: #2c7840;
+        }
+        .case-card h3 { margin: 10px 0 6px; font-size: 1.5rem; }
+        .case-card p { font-size: 1.2rem; margin: 0; color: #5a4a32; line-height: 1.3; }
+        .badge { font-size: 2.2rem; }
+        .progress-area {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 1.1rem;
+        }
+        .game-panel {
+            background: #fef7e8;
+            border-radius: 56px;
+            padding: 28px;
+            margin-top: 20px;
+            box-shadow: inset 0 0 0 1px #fff8, 0 12px 20px rgba(0,0,0,0.1);
+        }
+        .back-btn {
+            background: #bc9a6b;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 40px;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 20px;
+            cursor: pointer;
+            font-size: 1.05rem;
+        }
+        .final-zone {
+            margin-top: 40px;
+            border-top: 4px dashed #dbb46a;
+            padding-top: 20px;
+        }
+        .final-locked {
+            background: #e8dfce;
+            border-radius: 48px;
+            padding: 30px;
+            text-align: center;
+            color: #7a6233;
+            font-size: 1.1rem;
+        }
+        .final-unlocked {
+            background: #faf0df;
+            border-radius: 48px;
+            padding: 20px;
+        }
+        .test-item {
+            background: white;
+            border-radius: 32px;
+            margin-bottom: 24px;
+            padding: 18px;
+        }
+        .option-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 12px 0;
+        }
+        .option-label {
+            background: #f2e5d4;
+            padding: 8px 20px;
+            border-radius: 60px;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+        .help-btn {
+            background: #dbb87c;
+            border: none;
+            padding: 5px 18px;
+            border-radius: 40px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .quiz-option {
+            background: #f2e5d4;
+            margin: 8px 8px 8px 0;
+            padding: 12px 28px;
+            border-radius: 60px;
+            cursor: pointer;
+            display: inline-block;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        .bilingual-feedback {
+            background: #fff1d6;
+            padding: 18px;
+            border-radius: 28px;
+            margin: 16px 0;
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+        .next-btn {
+            background: #7c5f3a;
+            color: white;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 60px;
+            margin-top: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .case-header {
+            background: #2e241f;
+            color: #fae7c9;
+            padding: 14px 24px;
+            border-radius: 48px;
+            margin-bottom: 24px;
+            font-size: 1.2rem;
+        }
+        .testimony {
+            background: #e9e0cf;
+            padding: 24px;
+            border-radius: 32px;
+            margin: 20px 0;
+            font-size: 1.2rem;
+            line-height: 1.4;
+        }
+        .testimony p { margin: 0 0 12px 0; font-size: 1.2rem; }
+        .highlight-word {
+            background: #ffecb3;
+            padding: 0 6px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #a45000;
+            font-size: 1.2rem;
+        }
+        .reason-text {
+            background: #e8ddcc;
+            padding: 16px;
+            border-radius: 32px;
+            margin-top: 16px;
+            font-size: 1rem;
+        }
+        .clue-list-panel {
+            background: #f5ecdb;
+            border-radius: 32px;
+            padding: 16px 24px;
+            margin: 15px 0;
+            font-size: 1.05rem;
+        }
+        .clue-item {
+            margin: 12px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .clue-text { flex: 1; font-size: 1.05rem; }
+        .speaker-name { font-weight: bold; color: #a0522d; font-size: 1.1rem; }
+        .small-note {
+            font-size: 0.75rem;
+            vertical-align: baseline;
+            background: rgba(0,0,0,0.15);
+            border-radius: 12px;
+            padding: 0 4px;
+            margin-left: 4px;
+            white-space: nowrap;
+        }
+        .intro-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.88);
+            backdrop-filter: blur(3px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .intro-card {
+            max-width: 700px;
+            width: 85%;
+            background: rgba(30, 25, 20, 0.85);
+            border-radius: 60px;
+            padding: 40px 30px;
+            text-align: center;
+            border: 1px solid rgba(255,215,150,0.6);
+            box-shadow: 0 20px 35px rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+        }
+        .intro-card h2 {
+            font-size: 2.4rem;
+            margin-bottom: 16px;
+            color: #ffdd99;
+            letter-spacing: 2px;
+        }
+        .intro-card .designer {
+            font-size: 1.2rem;
+            color: #e9c891;
+            margin-top: 20px;
+            opacity: 0.9;
+            border-top: 1px dashed #b47c44;
+            display: inline-block;
+            padding-top: 12px;
+        }
+        .enter-btn {
+            background: #d49c5f;
+            border: none;
+            font-size: 1.5rem;
+            padding: 12px 32px;
+            border-radius: 60px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            margin-top: 20px;
+        }
+        button:active { transform: scale(0.97); }
+    </style>
+</head>
+<body>
+<div class="game-hub" id="app">
+    <h1>🕵️‍♂️ MYSTERY MANSION · Hidden Meaning Detective</h1>
+    <div class="sub">🎭 Three interlocking cases · Crack hidden meanings · Targeted review</div>
+    <button id="exitToLobbyBtn" class="back-btn">🏠 Designed by Mandy</button>
+    <div id="lobbyArea">
+        <div class="case-lobby" id="caseLobby"></div>
+        <div class="progress-area" id="globalProgress"></div>
+    </div>
+    <div id="activeGamePanel" style="display:none;" class="game-panel"></div>
+    <div id="finalTestZone" class="final-zone"></div>
+</div>
+
+<script>
+    // ======================= 完整词汇库（严格按照用户提供的60词顺序，例句已替换为真题） =======================
+    const FULL_VOCAB = [
+        { word: "breakdown", rare: "detailed list", example: "Here's the breakdown of the emissions in 2018 for different modes of transport.", trans: "以下是2018年不同交通方式的排放量明细。", pos: "noun" },
+        { word: "subject", rare: "person/object described", example: "More than once, I found myself wondering how my students knew their subjects so well.", trans: "我不止一次琢磨学生们为何如此了解笔下的人物。", pos: "noun" },
+        { word: "skirt", rare: "to go around the edge", example: "Skirting the town square, you'll find lovely shops.", trans: "沿着城镇广场走，你会发现可爱的商店。", pos: "verb" },
+        { word: "border", rare: "to be next to", example: "Bordering the square, the Ludlow Castle is a must explore.", trans: "卢德洛城堡紧邻广场，值得探索。", pos: "verb" },
+        { word: "cut", rare: "piece of meat", example: "the ingredients used were examples of meat cuts.", trans: "使用的配料都是肉类边角品。", pos: "noun" },
+        { word: "sensitive", rare: "requiring care; delicate", example: "volunteers play a vital role in restoring sensitive resources.", trans: "志愿者在修复敏感资源方面很重要。", pos: "adj" },
+        { word: "condition", rare: "illness", example: "Charlie had a serious heart condition.", trans: "查理有严重的心脏病。", pos: "noun" },
+        { word: "cover", rare: "to deal with", example: "Are listening and viewing as effective as reading when covering the same material?", trans: "处理相同的材料时，听和看与阅读一样有效吗？", pos: "verb" },
+        { word: "print", rare: "printed matter", example: "plants that have sensors printed onto their leaves.", trans: "叶子上印有传感器的植物。", pos: "noun" },
+        { word: "property", rare: "characteristic", example: "related to paper's physical properties.", trans: "与纸张的物理特性有关。", pos: "noun" },
+        { word: "geography", rare: "layout", example: "visual geography of distinct pages.", trans: "每页独特的视觉版图。", pos: "noun" },
+        { word: "say", rare: "for example", example: "teachers turn to these technologies—say, an online talk.", trans: "教师使用这些技术——比如说，在线演讲。", pos: "adv" },
+        { word: "piece", rare: "article (news)", example: "listen to identical pieces.", trans: "听相同的新闻报道。", pos: "noun" },
+        { word: "document", rare: "to record", example: "to document species before they go extinct.", trans: "记录濒危物种。", pos: "verb" },
+        { word: "leaf", rare: "to turn pages quickly", example: "pages I can leaf through with my fingers.", trans: "用手指翻阅的书页。", pos: "verb" },
+        { word: "promise", rare: "to give good reason to expect", example: "this walk promises to be an informative tour.", trans: "这次徒步很可能信息丰富。", pos: "verb" },
+        { word: "introduce", rare: "to present for the first time; to bring in", example: "The tax was introduced to reduce obesity.", trans: "推行税收以减少肥胖。", pos: "verb" },
+        { word: "chief", rare: "main; highest rank", example: "the chief communications officer.", trans: "首席公关官。", pos: "adj" },
+        { word: "call", rare: "appeal/request", example: "a call to artists to submit stories.", trans: "呼吁艺术家提交故事。", pos: "noun" },
+        { word: "solid", rare: "reliable", example: "farmer's markets are a solid choice.", trans: "农贸市场是可靠的选择。", pos: "adj" },
+        { word: "power", rare: "to supply energy to", example: "the code that powers AI.", trans: "驱动人工智能的代码。", pos: "verb" },
+        { word: "point", rare: "opinion", example: "Campbell's point is to wake up those responsible.", trans: "坎贝尔的观点是唤醒负责人。", pos: "noun" },
+        { word: "skip", rare: "to avoid", example: "skipping major holidays or rush hour.", trans: "避开主要节假日。", pos: "verb" },
+        { word: "around", rare: "existing", example: "MacBike has been around for 30 years.", trans: "MacBike已存在近30年。", pos: "adj" },
+        { word: "trap", rare: "to absorb/catch", example: "Why can certain plants trap harmful bacteria?", trans: "为什么某些植物能捕获有害细菌？", pos: "verb" },
+        { word: "treat", rare: "to process", example: "treated sewage from 1,600 homes.", trans: "处理来自1600户家庭的污水。", pos: "verb" },
+        { word: "develop", rare: "to create/invent", example: "He developed a greenhouse-like facility.", trans: "他开发了一个类似温室的设施。", pos: "verb" },
+        { word: "clear", rare: "transparent", example: "a series of clear fiberglass tanks.", trans: "一系列透明的玻璃纤维罐。", pos: "adj" },
+        { word: "global", rare: "overall", example: "a global reduction in error.", trans: "错误的全面减少。", pos: "adj" },
+        { word: "put", rare: "to write", example: "put the heading 'Personal strengths.'", trans: "写上“个人优点”的标题。", pos: "verb" },
+        { word: "course", rare: "race track", example: "should have finished the course earlier.", trans: "本应该早一点完成比赛。", pos: "noun" },
+        { word: "draw", rare: "to attract", example: "artists continue to be drawn to this place.", trans: "艺术家继续被吸引到这个地方。", pos: "verb" },
+        { word: "volume", rare: "book", example: "absorbed in a volume.", trans: "全神贯注地看书。", pos: "noun" },
+        { word: "hit", rare: "to encounter (difficulty)", example: "You'll hit roadblocks.", trans: "你会遇到障碍。", pos: "verb" },
+        { word: "late", rare: "deceased", example: "her late grandfather.", trans: "她已故的祖父。", pos: "adj" },
+        { word: "sharp", rare: "insightful/deep", example: "a sharp book that draws readers in.", trans: "一本深刻的书。", pos: "adj" },
+        { word: "quarter", rare: "living area", example: "farm animal quarters.", trans: "农场动物园舍。", pos: "noun" },
+        { word: "shot", rare: "photograph", example: "landscape shots.", trans: "风景照片。", pos: "noun" },
+        { word: "sweep", rare: "wide area or range", example: "The sweep of the land moves her.", trans: "土地的辽阔让她感动。", pos: "noun" },
+        { word: "drive", rare: "to push forward", example: "It drives the evolution.", trans: "它推动进化。", pos: "verb" },
+        { word: "run", rare: "to publish; to manage", example: "ran an article; runs the program.", trans: "刊登文章；负责项目。", pos: "verb" },
+        { word: "stick", rare: "to put/place casually", example: "I stuck the chicken in the freezer.", trans: "我把鸡肉放进冰柜。", pos: "verb" },
+        { word: "pick up", rare: "to increase (wind)", example: "The wind picked up.", trans: "风越刮越大。", pos: "verb" },
+        { word: "produce", rare: "farm products", example: "blemished produce.", trans: "有瑕疵的农产品。", pos: "noun" },
+        { word: "round", rare: "to complete (in a good way)", example: "rounding out a dinner.", trans: "为烤鸡晚餐锦上添花。", pos: "verb" },
+        { word: "pilot", rare: "to steer; experimental", example: "pilots ferryboats; pilot period.", trans: "驾驶渡轮；试点期。", pos: "verb" },
+        { word: "consume", rare: "to eat/drink a lot", example: "consuming three times the sugar.", trans: "摄入三倍的糖。", pos: "verb" },
+        { word: "land", rare: "to succeed in doing (trick)", example: "landed the trick.", trans: "成功完成动作。", pos: "verb" },
+        { word: "position", rare: "to place", example: "positioned to see flashes of genius.", trans: "随处看到天才的闪现。", pos: "verb" },
+        { word: "voice", rare: "to express", example: "voice art.", trans: "表达艺术。", pos: "verb" },
+        { word: "inform", rare: "to influence", example: "continues to inform contemporary design.", trans: "继续影响着当代设计。", pos: "verb" },
+        { word: "counter", rare: "to oppose", example: "plans to counter this trend.", trans: "计划抵制这种趋势。", pos: "verb" },
+        { word: "market", rare: "to promote", example: "nature as a brand to be marketed.", trans: "将自然作为品牌推销。", pos: "verb" },
+        { word: "exposure", rare: "contact", example: "exposure to human facial expressions.", trans: "接触人类面部表情。", pos: "noun" },
+        { word: "extra", rare: "especially", example: "makes it extra hard.", trans: "使得格外困难。", pos: "adv" },
+        { word: "top", rare: "to exceed", example: "topped 31 million.", trans: "超过了3100万。", pos: "verb" },
+        { word: "repeat", rare: "repeated section", example: "find the repeats in the music.", trans: "找到音乐中的重复片段。", pos: "noun" },
+        { word: "address", rare: "to speak to; to solve", example: "addressed the ceremony; address problems.", trans: "致辞；解决问题。", pos: "verb" },
+        { word: "house", rare: "to provide shelter", example: "feed and house the populations.", trans: "提供食物和住房。", pos: "verb" },
+        { word: "flow", rare: "smooth continuity", example: "break the flow of sound.", trans: "打断声音的流畅。", pos: "noun" }
+    ];
+
+    function getWordObj(word) { return FULL_VOCAB.find(v => v.word === word); }
+    function getWordPattern(word) {
+        if (word.includes(' ')) {
+            const parts = word.split(' ');
+            const base = parts[0];
+            return new RegExp(`\\b${base}(?:s|ed)?\\s+${parts[1]}\\b`, 'gi');
+        }
+        const irregular = { "draw": "draw|drew|drawn|drawing", "hit": "hit|hits|hitting", "run": "run|runs|ran|running", "stick": "stick|sticks|stuck|sticking", "drive": "drive|drives|drove|driven|driving", "land": "land|lands|landed|landing", "position": "position|positions|positioned|positioning", "voice": "voice|voices|voiced|voicing", "inform": "inform|informs|informed|informing", "counter": "counter|counters|countered|countering", "market": "market|markets|marketed|marketing", "top": "top|tops|topped|topping", "address": "address|addresses|addressed|addressing", "house": "house|houses|housed|housing", "promise": "promise|promises|promised|promising", "introduce": "introduce|introduces|introduced|introducing", "power": "power|powers|powered|powering", "skip": "skip|skips|skipped|skipping", "trap": "trap|traps|trapped|trapping", "treat": "treat|treats|treated|treating", "develop": "develop|develops|developed|developing", "put": "put|puts|putting", "cover": "cover|covers|covered|covering", "leaf": "leaf|leafs|leafed|leafing", "skirt": "skirt|skirts|skirted|skirting", "border": "border|borders|bordered|bordering", "pick up": "pick up|picks up|picked up|picking up" };
+        if (irregular[word]) return new RegExp(`\\b(?:${irregular[word]})\\b`, 'gi');
+        return new RegExp(`\\b(?:${word}|${word}s|${word}es|${word}ed|${word}ing)\\b`, 'gi');
+    }
+    function highlightWordInSentence(sentence, word) {
+        const regex = getWordPattern(word);
+        return sentence.replace(regex, match => `<span class="highlight-word">${match}</span>`);
+    }
+    function addChineseNotes(text) {
+        const notes = { 'testimonies': 'testimonies<small class="small-note">(证词)</small>', 'testimony': 'testimony<small class="small-note">(证词)</small>', 'old will': 'will<small class="small-note">(遗嘱)</small>', 'mansion': 'mansion<small class="small-note">(庄园)</small>', 'patrolling': 'patrolling<small class="small-note">(巡逻)</small>', 'hypotheticals': 'hypotheticals<small class="small-note">(假设情境)</small>', 'Forensics': 'Forensics<small class="small-note">(法医学)</small>', 'alibi': 'alibi<small class="small-note">(不在场证明)</small>', 'ransom': 'ransom<small class="small-note">(赎金)</small>', "servants' room": "servants' quarter<small class='small-note'> </small>" };
+        let result = text;
+        for (let [key, val] of Object.entries(notes)) { const regex = new RegExp(`\\b${key}\\b(?!<small)`, 'gi'); result = result.replace(regex, val); }
+        return result;
+    }
+
+    // ======================= 案件证词 =======================
+    // CASE1 (20条)
+    const testimoniesCase1 = [];
+    const wordSeq1 = ["breakdown","subject","document","geography","skirt","border","power","condition","leaf","say","print","property","sensitive","chief","piece","promise","solid","point","introduce","call"];
+    const testimonyMap1 = {
+        breakdown: { speaker:"🗝️ Butler", text:"The notebook with the financial breakdown is mine; it just lists household expenses. I have nothing to hide.", textTrans:"那本有财务明细的笔记本是我的，只是列出了家庭开支。我没什么可隐瞒的。" },
+        subject: { speaker:"🌹 Maid", text:"The main subject of the will<small class='small-note'>(遗嘱)</small> was the lord's nephew, but the butler kept muttering 'the subject should be me'. He felt ignored.", textTrans:"遗嘱的主要描述对象是勋爵的侄子，但管家一直嘟囔'描述对象应该是我'。他感到被忽视了。" },
+        document: { speaker:"📜 Secretary", text:"I decided to document the butler's nightly movements. My log shows he left his room at 1 AM and returned at 3 AM — the exact time of the theft.", textTrans:"我决定记录管家夜间的行踪。我的日志显示他凌晨1点离开房间，3点回来——正好是盗窃发生的时间。" },
+        geography: { speaker:"🌹 Maid", text:"The geography of the study is unique: only the butler knows the secret passage that connects to the garden. I've seen him use it.", textTrans:"书房的布局很特殊：只有管家知道通往花园的秘密通道。我亲眼见过他使用。" },
+        skirt: { speaker:"📜 Secretary", text:"Last night I saw a tall figure skirt the east wall of the mansion<small class='small-note'>(庄园)</small>, avoiding all lights. The posture matches the butler perfectly.", textTrans:"昨晚我看见一个高大的身影沿着庄园东墙走，避开所有灯光。那姿态和管家完全吻合。" },
+        border: { speaker:"🗝️ Butler", text:"My room borders the lord's study, yes, but the wall is thick. I couldn't hear any safe combination even if I tried.", textTrans:"我的房间紧邻勋爵的书房，但墙壁很厚。即使我想听也听不到保险柜密码。" },
+        power: { speaker:"🗝️ Butler", text:"I know how the generator powers the entire alarm system. But I have a heart condition, which made it impossible for me to touch the alarm system.", textTrans:"我知道发电机如何驱动整个警报系统。但我心脏不好，不可能去碰警报系统。" },
+        condition: { speaker:"📜 Secretary", text:"The butler has a serious heart condition, yet he claimed he was patrolling<small class='small-note'>(巡逻)</small> the grounds alone at midnight. That's extremely suspicious for a sick man.", textTrans:"管家有严重的心脏病，却声称自己半夜独自在庄园巡逻。对一个病人来说这极其可疑。" },
+        leaf: { speaker:"🌹 Maid", text:"I saw the butler leaf through a notebook, tearing out some pages. It looked like the same notebook he mentioned earlier.", textTrans:"我看到管家翻阅一个笔记本，撕掉了几页。那看起来就是他之前提到的那个笔记本。" },
+        say: { speaker:"🗝️ Butler", text:"The maid keeps testing hypotheticals<small class='small-note'>(假设情境)</small>: 'Say, someone had a master key — then anyone could be guilty.' She's trying to frame me.", textTrans:"女仆不断测试假设情境：'比如说，有人有万能钥匙——那任何人都可能有罪。' 她在试图陷害我。" },
+        print: { speaker:"📜 Secretary", text:"Forensics<small class='small-note'>(法医学)</small> found a clear glove print on the safe. It matches the butler's unique leather gloves — I saw him wearing them that evening.", textTrans:"法医在保险箱上发现一个清晰的手套印痕，与管家独特的皮手套吻合——那晚我亲眼看到他戴着。" },
+        property: { speaker:"🌹 Maid", text:"The stolen ring has a special property: it glows blue under UV light. The police found UV traces on the butler's coat cuff. He can't explain it.", textTrans:"失窃的戒指有一种特殊特性：紫外线下发蓝光。警方在管家外套袖口发现了紫外痕迹。他无法解释。" },
+        sensitive: { speaker:"🗝️ Butler", text:"The lord's documents are sensitive — trade secrets, yes. But I have no reason to steal them. My alibi<small class='small-note'>(不在场证明)</small> is that I was in the pantry all night.", textTrans:"勋爵的文件很敏感——商业机密。但我没理由偷。我的不在场证明是我整晚都在餐具室。" },
+        chief: { speaker:"🗝️ Butler", text:"I am the chief of staff, so I naturally have access to everything. But that doesn't make me a thief. The maid's testimony is full of holes.", textTrans:"我是首席管家，自然有权接触一切。但这不代表我是贼。女仆的证词漏洞百出。" },
+        piece: { speaker:"🌹 Maid", text:"The local newspaper ran a piece about the butler being investigated for art theft ten years ago. The case was dropped, but it shows a pattern.", textTrans:"当地报纸刊登过一篇报道，说管家十年前因艺术品盗窃被调查。案子虽不了了之，但显示了他的犯罪模式。" },
+        promise: { speaker:"📜 Secretary", text:"The butler's strange behavior promises to reveal more secrets. His constant lies promise to collapse under cross-examination.", textTrans:"管家的奇怪行为很可能揭示更多秘密。他的不断撒谎很可能在盘问下崩溃。" },
+        solid: { speaker:"🗝️ Butler", text:"My alibi<small class='small-note'>(不在场证明)</small> is solid — I was polishing silver in the pantry all night. But the secretary claims she saw me elsewhere. She's lying.", textTrans:"我的不在场证明很可靠——我整晚都在餐具室擦拭银器。但秘书说她看到我在别处。她在撒谎。" },
+        point: { speaker:"🌹 Maid", text:"The detective's point is crucial: the butler asked about the safe code just two days before the crime. No other suspect had that knowledge.", textTrans:"侦探的观点很关键：管家在案发前两天打听过保险柜密码。其他嫌疑人都不知道。" },
+        introduce: { speaker:"📜 Secretary", text:"The mansion<small class='small-note'>(庄园)</small> introduced a new security system last month, and the butler was in charge of the test. He deliberately introduced a backdoor to disable the cameras.", textTrans:"上个月庄园推行了新安保系统，管家负责测试。他故意引入了一个后门来禁用摄像头。" },
+        call: { speaker:"🌹 Maid", text:"After the theft, there was an anonymous phonecall demanding ransom<small class='small-note'>(赎金)</small> for the ring's return. Voice analysis matched the butler's speech patterns — a clear call for money.", textTrans:"盗窃后有一个匿名电话索要赎金以归还戒指。语音分析匹配了管家的说话模式——那是赤裸裸的要钱请求。" }
+    };
+    for(let w of wordSeq1) { let data = testimonyMap1[w]; let wordObj = getWordObj(w); if(wordObj) testimoniesCase1.push({ wordObj, speaker: data.speaker, text: addChineseNotes(data.text), textTrans: data.textTrans }); }
+
+    // CASE2 (23条)
+    const testimoniesCase2 = [];
+    const case2words = ["skip","around","trap","treat","develop","clear","global","put","course","draw","volume","hit","late","sharp","quarter","shot","sweep","drive","run","stick","pick up","produce","round"];
+    const case2Sentences = [
+        { speaker:"🎭 Blue Guest", text:"I decided to skip the main ballroom because I felt unwell. But the blue guest told police she saw the red guest sneaking toward the jewelry room.", trans:"我决定避开主舞厅，因为我不舒服。但蓝衣客人告诉警方，她看到红衣客人偷偷往珠宝室走去。" },
+        { speaker:"🎭 Gold Guest", text:"The ruby necklace has been around the family for decades. Only the red guest, an outsider, has been asking about its value recently.", trans:"红宝石项链在家族中存在了几十年。只有红衣客人这个外人最近一直在打听它的价值。" },
+        { speaker:"🎭 Blue Guest", text:"The hidden camera can trap any movement. The footage shows only the red guest approaching the display case – the gold guest confirmed it.", trans:"隐藏摄像头能捕捉任何动静。画面显示只有红衣客人靠近了展柜——金衣客人也证实了。" },
+        { speaker:"🎭 Gold Guest", text:"Police must carefully treat the fingerprint left on the jewelry box. It belongs to the red guest – she claims she never touched it, but the evidence says otherwise.", trans:"警方必须小心处理珠宝盒上的指纹。它属于红衣客人——她声称从未碰过，但证据相反。" },
+        { speaker:"🎭 Red Guest", text:"The photographer will develop the film tomorrow. The red guest urgently demanded to take the negatives – that's very suspicious.", trans:"摄影师明天才会冲洗胶卷。红衣客人急切要求取走底片——非常可疑。" },
+        { speaker:"🎭 Blue Guest", text:"The box is clear plastic, so you can see the empty tray. The red guest was the last person seen touching it – the blue guest witnessed that.", trans:"盒子是透明塑料的，可以看到空托盘。红衣客人是最后一个被看到触摸盒子的人——蓝衣客人目睹了。" },
+        { speaker:"🎭 Gold Guest", text:"Police took a global view and found the red guest was near the jewelry room during all relevant time windows. She has no explanation.", trans:"警方采取整体视角，发现红衣客人在所有相关时段都出现在珠宝室附近。她无法解释。" },
+        { speaker:"🎭 Red Guest", text:"I put my suspicion in a note: the red guest is missing one glove. The other glove was found near the jewelry box – the gold guest found it.", trans:"我把怀疑写在便签上：红衣客人少了一只手套。另一只在珠宝盒附近被发现——金衣客人找到的。" },
+        { speaker:"🎭 Blue Guest", text:"The escape course goes through the garden. The red guest's shoes have unique soil from that garden – forensics confirmed it.", trans:"逃跑路线穿过花园。红衣客人的鞋底有那个花园独有的泥土——法医证实了。" },
+        { speaker:"🎭 Gold Guest", text:"The bright gems drew everyone's attention, but the red guest deliberately avoided the cameras. The blue guest noticed her sneaking away.", trans:"明亮的宝石吸引了所有人的目光，但红衣客人故意避开摄像头。蓝衣客人注意到她溜走。" },
+        { speaker:"🎭 Red Guest", text:"The red guest hid a small volume under her cloak. When she dropped it, the stolen necklace fell out – the gold guest saw everything.", trans:"红衣客人把一小册书藏在斗篷下。当她掉落时，偷来的项链掉了出来——金衣客人目睹了一切。" },
+        { speaker:"🎭 Blue Guest", text:"If you try to leave alone, you'll hit many obstacles. Yet the red guest seemed to know all guard shifts – she must have planned this.", trans:"如果你想独自离开会遇到很多障碍。但红衣客人似乎知道所有警卫换班时间——她一定早有预谋。" },
+        { speaker:"🎭 Gold Guest", text:"The late lady's diary recorded that the red guest once asked her for a loan and was refused. That's a strong motive.", trans:"已故老夫人的日记记载，红衣客人曾向她借钱遭拒。这是强烈的动机。" },
+        { speaker:"🎭 Red Guest", text:"The detective made a sharp observation: the red guest's story contradicts itself. First she said she never left the ballroom, then she admitted going to the restroom near the jewelry room.", trans:"侦探做了一个深刻的观察：红衣客人的供词自相矛盾。她先说从未离开舞厅，后又承认去了珠宝室附近的洗手间。" },
+        { speaker:"🎭 Blue Guest", text:"The servants' quarter has a side door. The red guest asked the maid whether it was locked – the maid told me this.", trans:"仆人的住处有一扇侧门。红衣客人曾问女仆那扇门是否上锁——女仆告诉我的。" },
+        { speaker:"🎭 Gold Guest", text:"I took a shot of the ruby with my phone. Looking at the photo later, I saw the red guest's reflection in the glass case.", trans:"我用手机拍了一张红宝石的照片。后来看照片时，我在玻璃展柜的倒影里看到了红衣客人。" },
+        { speaker:"🎭 Red Guest", text:"The sweep of the investigation covers all guests. Only the red guest cannot provide a complete timeline – she claims she was alone in the garden, but no one saw her.", trans:"调查的广度覆盖所有客人。只有红衣客人无法提供完整的时间线——她声称独自在花园，但没人看到她。" },
+        { speaker:"🎭 Blue Guest", text:"Greed was the drive behind the crime. The red guest had huge gambling debts – the police found her bank records.", trans:"贪婪是犯罪的驱动力。红衣客人背负巨额赌债——警方找到了她的银行记录。" },
+        { speaker:"🎭 Gold Guest", text:"The local newspaper will run a story: surveillance shows the red guest leaving through the side door at dawn. The editor confirmed the footage.", trans:"当地报纸将刊登一篇报道：监控显示红衣客人黎明时从侧门离开。编辑证实了录像。" },
+        { speaker:"🎭 Red Guest", text:"I stuck the invitation card into my pocket, and later found ruby fragments inside. That coat belongs to the red guest – she must have used it to wrap the necklace.", trans:"我把邀请卡塞进口袋，后来发现里面有红宝石碎屑。那件外套属于红衣客人——她一定用它包裹了项链。" },
+        { speaker:"🎭 Blue Guest", text:"The wind picked up at midnight, blowing off the red guest's wig and revealing a stocking cap. The blue guest saw this and alerted security.", trans:"午夜时分风大了起来，吹落了红衣客人的假发，露出里面的头套。蓝衣客人看到并通知了安保。" },
+        { speaker:"🎭 Gold Guest", text:"At the farm produce stall, someone tried to sell the gem cheap. The vendor identified the red guest as the seller – she was arrested later.", trans:"在农产品摊位，有人试图低价出售宝石。商贩指认红衣客人是卖家——她后来被捕了。" },
+        { speaker:"🎭 Red Guest", text:"A glass of wine would round out the evening, but the red guest refused all toasts and left alone. That was a sign of nervousness after the crime.", trans:"一杯酒本可以让夜晚锦上添花，但红衣客人拒绝了所有敬酒独自离开——那是作案后紧张的迹象。" }
+    ];
+    for(let i=0;i<case2words.length;i++){ let w=case2words[i]; let wo=getWordObj(w); if(wo){ testimoniesCase2.push({ wordObj:wo, speaker:case2Sentences[i].speaker, text:addChineseNotes(case2Sentences[i].text), textTrans:case2Sentences[i].trans }); } }
+
+    // CASE3 (20条，无血腥，图标已改为📁)
+    const testimoniesCase3 = [];
+    const case3words = ["pilot","consume","land","position","voice","inform","counter","market","exposure","extra","top","repeat","address","house","flow","print","border","cut","sensitive","condition"];
+    const case3Sentences = [
+        { speaker:"🎓 Professor", text:"The librarian will pilot a secret archive project. But the professor discovered he used his authority to hide the victim's research files.", trans:"图书管理员将领导一个秘密档案项目。但教授发现他利用职权藏匿了受害者的研究文件。" },
+        { speaker:"🔬 Scientist", text:"The librarian consumes too much coffee. But on the crime night, he was unusually alert – the scientist thinks he had just 'dealt with' the victim's documents.", trans:"图书管理员每天摄入过量咖啡。但案发当晚他异常清醒——科学家认为他刚'处理'了受害者的文件。" },
+        { speaker:"🎓 Professor", text:"He finally landed the tricky move: opening the rare book vault without triggering the alarm. The professor saw him practicing the lock combination earlier.", trans:"他终于成功完成了那个高难度动作：在不触发警报的情况下打开了珍本库。教授之前看到他练习密码锁。" },
+        { speaker:"🔬 Scientist", text:"I positioned myself in the corner and saw the librarian sneaking out of the victim's room with a stack of papers. I reported it immediately.", trans:"我把自己安置在角落，看到图书管理员拿着一叠文件从受害者房间溜出来。我立即报告了。" },
+        { speaker:"🎓 Professor", text:"The professor finally voiced his suspicion: the librarian had threatened the victim to hand over research notes. The scientist overheard the argument.", trans:"教授终于表达了他的怀疑：图书管理员曾威胁受害者交出研究笔记。科学家听到了争吵。" },
+        { speaker:"🔬 Scientist", text:"This new evidence will inform our judgment: the librarian's shoeprints match the footprints found near the filing cabinet. Forensics confirmed it.", trans:"这个新证据将影响我们的判断：图书管理员的鞋印与文件柜旁的足迹吻合。法医证实了。" },
+        { speaker:"🎓 Professor", text:"The librarian tried to counter all accusations, but the scientist produced the receipt for the lockpick set he bought. That tool was used to open the cabinet.", trans:"图书管理员试图抵制所有指控，但科学家拿出了他购买开锁工具的收据。那个工具被用来打开文件柜。" },
+        { speaker:"🔬 Scientist", text:"He planned to market the victim's exclusive research to overseas institutions for a huge reward. The professor found emails proving this.", trans:"他计划将受害者的独家研究推销给海外机构以换取巨额报酬。教授找到了证明此事的邮件。" },
+        { speaker:"🎓 Professor", text:"Long-term exposure to toxic mold made the librarian irritable, but that's no excuse for theft. The scientist noted his recent suspicious behavior.", trans:"长期接触有毒霉菌让图书管理员暴躁，但这不能成为盗窃的借口。科学家注意到他最近有可疑行为。" },
+        { speaker:"🔬 Scientist", text:"The security was extra lax that night because the librarian had shut down the corridor cameras. The professor saw him enter the control room.", trans:"那晚安保格外松懈，因为图书管理员关闭了走廊摄像头。教授看到他进入控制室。" },
+        { speaker:"🎓 Professor", text:"The value of the stolen research topped one million dollars. The librarian's account received a mysterious wire transfer – the bank reported it.", trans:"被盗研究资料的价值超过了一百万美元。图书管理员的账户收到一笔神秘汇款——银行报告的。" },
+        { speaker:"🔬 Scientist", text:"Listen to the repeat in the music record – the librarian called the victim repeatedly around the crime time. Phone records prove it.", trans:"听音乐中的重复段——图书管理员在案发时间反复拨打受害者电话。通话记录证明了。" },
+        { speaker:"🎓 Professor", text:"The director will address the staff tomorrow, announcing the librarian's suspension for alleged data theft. The evidence is overwhelming.", trans:"主管明天将向员工致辞，宣布图书管理员因涉嫌数据盗窃被停职。证据确凿。" },
+        { speaker:"🔬 Scientist", text:"The library houses many priceless research archives. The librarian hid the stolen files behind a neglected bookshelf – the scientist found them during a search.", trans:"图书馆收藏了许多无价的研究档案。图书管理员把被盗文件藏在一个无人问津的书架后——科学家在搜查时发现了它们。" },
+        { speaker:"🎓 Professor", text:"Interrupting the flow of the meeting would arouse suspicion, so the librarian chose to 'talk' to the victim alone after the meeting. The professor saw them leave together.", trans:"打断会议的流畅会引起怀疑，所以图书管理员选择在会后单独'约谈'受害者。教授看到他们一起离开。" },
+        { speaker:"🔬 Scientist", text:"The print found at the scene matches the fingerprint on the librarian's ID card. He claimed he never approached the cabinet, but the print says otherwise.", trans:"现场发现的印痕与图书管理员工作证上的指纹吻合。他声称从未靠近过文件柜，但印痕证明相反。" },
+        { speaker:"🎓 Professor", text:"A small river borders the library's back door. The librarian rowed a boat to dispose of evidence but was caught on camera – the scientist reviewed the footage.", trans:"一条小河紧邻图书馆后门。图书管理员划船处理证据，却被摄像头拍到——科学家查看了录像。" },
+        { speaker:"🔬 Scientist", text:"Forensics found a cut of an unusual snack wrapper in the cabinet, matching the librarian's special imported crackers. The professor recalled the librarian boasting about that snack.", trans:"法医在文件柜中发现一块不寻常的零食包装碎片，与图书管理员的特殊进口饼干吻合。教授记得图书管理员曾炫耀那种零食。" },
+        { speaker:"🎓 Professor", text:"The lab contains sensitive chemicals. The librarian secretly took a bottle to make a knockout agent – the scientist noticed it missing.", trans:"实验室含有需要谨慎处理的化学品。图书管理员偷偷拿走一瓶制造昏迷药剂——科学家注意到瓶子不见了。" },
+        { speaker:"🔬 Scientist", text:"The victim had a serious asthma condition. The librarian deliberately locked the vents to trigger an attack – the professor found the locked vent.", trans:"受害者有严重的哮喘状况。图书管理员故意锁上通风口引发发作——教授发现了被锁的通风口。" }
+    ];
+    for(let i=0;i<case3words.length;i++){ let w=case3words[i]; let wo=getWordObj(w); if(wo){ testimoniesCase3.push({ wordObj:wo, speaker:case3Sentences[i].speaker, text:addChineseNotes(case3Sentences[i].text), textTrans:case3Sentences[i].trans }); } }
+
+    const cases = [
+        { id:0, title:"📜 CASE 1: THE MISSING HEIRLOOM", brief:"Lord Ashbury's family ring vanished. Decode hidden meanings to find the thief.", solution:"butler", solutionName:"The Butler", testimonies: testimoniesCase1, bgImage:"https://images.unsplash.com/photo-1505664194779-8beaceb93744?q=80&w=2070&auto=format&fit=crop" },
+        { id:1, title:"🎭 CASE 2: THE VANISHED NECKLACE", brief:"Ruby necklace disappeared during masquerade. Find the real thief.", solution:"guestRed", solutionName:"The Guest in Red", testimonies: testimoniesCase2, bgImage:"https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=2070&auto=format&fit=crop" },
+        { id:2, title:"📁 CASE 3: THE SECRET SOCIETY", brief:"Confidential research was stolen from a locked library. Uncover the culprit.", solution:"librarian", solutionName:"The Librarian", testimonies: testimoniesCase3, bgImage:"https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=2070&auto=format&fit=crop" }
+    ];
+
+    // 游戏状态
+    let caseCompleted = [false, false, false];
+    let activeCaseId = null;
+    let currentQuestionIndex = 0;
+    let currentCaseData = null;
+    let waitingForNext = false;
+    let userAnswers = [];
+    let wrongWordsSet = new Set();
+
+    function getWordKey(wordObj) { return wordObj.word; }
+    function recordWrongWord(wordObj) { wrongWordsSet.add(getWordKey(wordObj)); }
+    function getOptionsForWord(correctMeaning, pos) {
+        let candidates = FULL_VOCAB.filter(v => v.pos === pos && v.rare !== correctMeaning);
+        let distinct = [...new Map(candidates.map(v=>[v.rare, v])).values()];
+        let shuffled = distinct.sort(()=>0.5-Math.random());
+        let opts = [correctMeaning];
+        for(let c of shuffled) { if(opts.length<4 && !opts.includes(c.rare)) opts.push(c.rare); }
+        while(opts.length<4) opts.push("unknown trait");
+        for(let i=opts.length-1; i>0; i--){ const j=Math.floor(Math.random()*(i+1)); [opts[i], opts[j]] = [opts[j], opts[i]]; }
+        return opts;
+    }
+
+    function getAccusationReason(caseId, isCorrect) {
+        const reasons = {
+            0: { 
+                correct: { en: "The butler's guilt is proven: his 'breakdown' hid secret payments; he 'skirted' the walls; he had 'power' over the alarm; his 'condition' was used as an excuse; 'print' matched; the ring's 'property' left UV traces; the 'chief' detective confirmed. His own words and the maid's observation of him leafing through the notebook seal his guilt.", zh: "管家的罪行确凿：他的'明细'笔记本藏有秘密；他'沿着'墙边行走；他掌控警报'驱动'；利用'病情'做借口；'印痕'吻合；戒指的'特性'留下紫外痕迹；'首席'侦探确认。他自己说的话以及女仆看到他翻阅笔记本撕页的行为证实了罪行。" },
+                wrong: { en: "Wrong accusation. The real criminal is the butler. His financial breakdown, knowledge of the geography, and the glove print seal his guilt.", zh: "指控错误。真凶是管家。他的财务明细、对布局的了解以及手套印痕证实了他的罪行。" }
+            },
+            1: { 
+                correct: { en: "The red guest is the thief. Evidence: she 'skipped' the party, was seen near the jewelry room, fingerprint 'treated' as evidence, had debt 'drive', and tried to sell the gem.", zh: "红衣客人是窃贼。证据：她'避开'派对，出现在珠宝室附近，指纹被'处理'为证据，有债务'驱动力'，并试图出售宝石。" },
+                wrong: { en: "Incorrect. The real thief is the guest in red. Her shoes had garden soil, she asked about servants' room, and she tried to sell the gem at a produce market.", zh: "不正确。真正的窃贼是红衣客人。她的鞋底有花园泥土，她打听仆人住处，还试图在农产品市场出售宝石。" }
+            },
+            2: { 
+                correct: { en: "The librarian stole the research. He 'piloted' the archive, 'landed' the vault opening, 'voiced' threats, 'countered' accusations with lies, and hid the stolen files.", zh: "图书管理员窃取了研究资料。他'领导'档案室，'成功完成'开锁，'表达'威胁，用谎言'抵制'指控，并藏匿被盗文件。" },
+                wrong: { en: "Wrong. The librarian is the real culprit. He shut down cameras, used sedatives, his shoeprints matched, and he marketed the victim's research.", zh: "错误。图书管理员才是真正的罪犯。他关闭摄像头、使用镇静剂、鞋印吻合、并且推销受害者的研究。" }
+            }
+        };
+        return reasons[caseId][isCorrect ? 'correct' : 'wrong'];
+    }
+
+    function showCaseIntro(caseId, callback) {
+        const caseData = cases[caseId];
+        const overlay = document.createElement('div');
+        overlay.className = 'intro-overlay';
+        overlay.innerHTML = `<div class="intro-card" style="background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('${caseData.bgImage}'); background-size: cover; background-position: center;"><h2>${caseData.title}</h2><p>${caseData.brief}</p><button class="enter-btn">🔍 ENTER THE SCENE</button></div>`;
+        document.body.appendChild(overlay);
+        overlay.querySelector('.enter-btn').onclick = () => { overlay.remove(); callback(); };
+    }
+
+    function renderCaseGame(caseId) {
+        activeCaseId = caseId;
+        currentCaseData = cases[caseId];
+        currentQuestionIndex = 0;
+        waitingForNext = false;
+        userAnswers = new Array(currentCaseData.testimonies.length).fill(null);
+        document.getElementById('lobbyArea').style.display = 'none';
+        document.getElementById('activeGamePanel').style.display = 'block';
+        showQuestion();
+    }
+    function showQuestion() {
+        if (waitingForNext) return;
+        const testimonies = currentCaseData.testimonies;
+        if (currentQuestionIndex >= testimonies.length) { showAccusationButton(); return; }
+        const item = testimonies[currentQuestionIndex];
+        const wordData = item.wordObj;
+        const correctMeaning = wordData.rare;
+        const opts = getOptionsForWord(correctMeaning, wordData.pos);
+        const highlightedSentence = highlightWordInSentence(item.text, wordData.word);
+        const html = `<button class="back-btn" id="exitInterrogateBtn">← Case Files</button><div class="case-header"><h3>${currentCaseData.title}</h3><p>${currentCaseData.brief}</p></div><div class="testimony"><p><strong>👤 ${item.speaker}:</strong> "${highlightedSentence}"</p><p>❓ What does "<strong>${wordData.word}</strong>" mean here? (hidden meaning)</p></div><div id="optionsArea"></div><div id="feedbackArea" class="bilingual-feedback" style="display:none;"></div><div>🔍 Progress: ${currentQuestionIndex+1}/${testimonies.length}</div>`;
+        const panel = document.getElementById('activeGamePanel');
+        panel.innerHTML = html;
+        const optsDiv = document.getElementById('optionsArea');
+        opts.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'quiz-option';
+            btn.innerText = opt;
+            btn.onclick = () => {
+                if (waitingForNext) return;
+                const isCorrect = (opt === correctMeaning);
+                userAnswers[currentQuestionIndex] = isCorrect;
+                if (isCorrect) { currentQuestionIndex++; showQuestion(); }
+                else {
+                    recordWrongWord(wordData);
+                    waitingForNext = true;
+                    const fbDiv = document.getElementById('feedbackArea');
+                    fbDiv.style.display = 'block';
+                    fbDiv.innerHTML = `<strong>❌ Incorrect</strong><br>🔍 Correct hidden meaning: <strong>${correctMeaning}</strong><br>📝 Sentence translation: ${item.textTrans}<br>💡 Real example: ${wordData.example}<br><button id="nextQBtn" class="next-btn">➡ Next testimony</button>`;
+                    document.querySelectorAll('.quiz-option').forEach(b => b.disabled = true);
+                    document.getElementById('nextQBtn').onclick = () => { currentQuestionIndex++; waitingForNext = false; showQuestion(); };
+                }
+            };
+            optsDiv.appendChild(btn);
+        });
+        document.getElementById('exitInterrogateBtn').onclick = () => exitToLobby();
+    }
+    function showAccusationButton() {
+        const panel = document.getElementById('activeGamePanel');
+        panel.innerHTML = `<div class="case-header"><h3>🔍 ACCUSATION PHASE</h3><p>All testimonies heard. Accuse the criminal!</p></div><button id="goToAccuseBtn" class="back-btn" style="background:#d49c5f;">⚖️ PROCEED TO ACCUSE</button><button id="exitToLobbyBtn" class="back-btn">🏠 Back to lobby</button>`;
+        document.getElementById('goToAccuseBtn').onclick = () => showAccusation();
+        document.getElementById('exitToLobbyBtn').onclick = () => exitToLobby();
+    }
+    function showAccusation() {
+        const panel = document.getElementById('activeGamePanel');
+        const correctSolution = currentCaseData.solution;
+        const correctName = currentCaseData.solutionName;
+        let suspectOptions = currentCaseData.id===0 ? [{value:"butler",label:"🗝️ Butler"},{value:"maid",label:"🌹 Maid"},{value:"secretary",label:"📜 Secretary"}] : (currentCaseData.id===1 ? [{value:"guestRed",label:"🎭 Guest in Red"},{value:"guestBlue",label:"🎭 Guest in Blue"},{value:"guestGold",label:"🎭 Guest in Gold"}] : [{value:"librarian",label:"📖 Librarian"},{value:"professor",label:"🎓 Professor"},{value:"scientist",label:"🔬 Scientist"}]);
+        let cluesHtml = `<div class="clue-list-panel"><strong>📜 ALL CLUES / 所有线索:</strong><div>`;
+        currentCaseData.testimonies.forEach((t,i)=>{
+            const highlighted = highlightWordInSentence(t.text, t.wordObj.word);
+            cluesHtml += `<div class="clue-item"><div class="clue-text"><span class="speaker-name">${t.speaker}:</span> ${highlighted}</div><button class="help-btn" data-idx="${i}">📖 中文</button><span id="ct_${i}"></span></div>`;
+        });
+        cluesHtml += `</div></div>`;
+        panel.innerHTML = `<div class="case-header"><h3>⚖️ FINAL ACCUSATION</h3></div>${cluesHtml}<div id="accuseOptions"></div><div id="accuseFeedback"></div><button id="backLobbyFinal" class="back-btn">🏠 Back to lobby</button>`;
+        for(let i=0;i<currentCaseData.testimonies.length;i++){ panel.querySelector(`.help-btn[data-idx="${i}"]`).onclick = ()=>{ document.getElementById(`ct_${i}`).innerText = currentCaseData.testimonies[i].textTrans; setTimeout(()=>document.getElementById(`ct_${i}`).innerText="",3500); }; }
+        const accuseDiv = document.getElementById('accuseOptions');
+        suspectOptions.forEach(s=>{
+            const btn = document.createElement('button');
+            btn.className = 'quiz-option';
+            btn.innerText = s.label;
+            btn.onclick = () => {
+                const isCorrect = (s.value === correctSolution);
+                const reason = getAccusationReason(currentCaseData.id, isCorrect);
+                const feedbackDiv = document.getElementById('accuseFeedback');
+                if (isCorrect) {
+                    feedbackDiv.innerHTML = `<div class="bilingual-feedback" style="background:#cbe6cf;"><strong>✅ Correct! ${correctName} is the criminal.</strong><br><div class="reason-text"><strong>🔍 REASON (English):</strong><br>${reason.en}</div><div class="reason-text"><strong>📖 推理理由 (中文):</strong><br>${reason.zh}</div></div>`;
+                } else {
+                    feedbackDiv.innerHTML = `<div class="bilingual-feedback" style="background:#ffe0e0;"><strong>❌ Wrong accusation! The real criminal is ${correctName}.</strong><br><div class="reason-text"><strong>🔍 EXPLANATION (English):</strong><br>${reason.en}</div><div class="reason-text"><strong>📖 解释 (中文):</strong><br>${reason.zh}</div><button id="retryCaseBtn" class="next-btn">🔄 Restart this case</button></div>`;
+                    document.getElementById('retryCaseBtn').onclick = () => { caseCompleted[activeCaseId] = false; renderCaseGame(activeCaseId); };
+                }
+                // 无论对错，案件都标记为完成（指认即完成）
+                caseCompleted[activeCaseId] = true;
+                updateLobbyAndUnlock();
+                document.querySelectorAll('#accuseOptions .quiz-option').forEach(b => b.disabled = true);
+            };
+            accuseDiv.appendChild(btn);
+        });
+        document.getElementById('backLobbyFinal').onclick = () => exitToLobby();
+    }
+    function exitToLobby() { document.getElementById('activeGamePanel').style.display = 'none'; document.getElementById('lobbyArea').style.display = 'block'; updateLobbyAndUnlock(); }
+
+    function updateLobbyAndUnlock() {
+        const lobbyDiv = document.getElementById('caseLobby');
+        lobbyDiv.innerHTML = '';
+        cases.forEach((c, idx) => {
+            const completed = caseCompleted[idx];
+            const card = document.createElement('div');
+            card.className = `case-card ${completed ? 'completed' : ''}`;
+            card.innerHTML = `<div class="badge">${completed ? '✅' : '🔎'}</div><h3>${c.title}</h3><p>${c.brief.substring(0, 55)}...</p><p style="font-size:1rem;">🔍 ${c.testimonies.length} clues</p>`;
+            card.addEventListener('click', () => { if(completed) { alert("Case already solved. Great detective!"); return; } showCaseIntro(idx, () => renderCaseGame(idx)); });
+            lobbyDiv.appendChild(card);
+        });
+        const doneCount = caseCompleted.filter(v=>v===true).length;
+        document.getElementById('globalProgress').innerHTML = `<span style="background:#c2a15b; padding:6px 18px; border-radius:60px; color:white;">🏆 CASES SOLVED: ${doneCount}/3</span>`;
+        const allDone = doneCount === 3;
+        const finalZone = document.getElementById('finalTestZone');
+        if (allDone) { if (!window.finalUnlocked) { window.finalUnlocked = true; renderFinalTest(); } } 
+        else { finalZone.innerHTML = `<div class="final-locked"><strong>🔒 FINAL EXAMINATION LOCKED</strong><br>Solve all three cases first to unlock targeted review!</div>`; window.finalUnlocked = false; }
+    }
+
+    function renderFinalTest() {
+        const fullOrder = FULL_VOCAB.map(v => v.word);
+        let wrongList = Array.from(wrongWordsSet).map(w => getWordObj(w)).filter(v => v);
+        wrongList.sort((a,b) => fullOrder.indexOf(a.word) - fullOrder.indexOf(b.word));
+        const finalDiv = document.getElementById('finalTestZone');
+        if(wrongList.length===0){ finalDiv.innerHTML = `<div class="final-unlocked" style="text-align:center;"><h2>🏆 PERFECT DETECTIVE!</h2><p>You mastered every hidden meaning. No extra review needed.</p></div>`; return; }
+        finalDiv.innerHTML = `<div class="final-unlocked"><h2>📚 TARGETED REVIEW · Your Mistakes Only</h2><p>You got ${wrongList.length} word(s) wrong. Practice with real exam sentences.</p><div id="finalTestList"></div><button id="submitFinalAll" style="background:#c49a6c; padding:12px 28px; border-radius:60px; margin-top:20px;">📊 SUBMIT & SCORE</button><div id="finalResult"></div></div>`;
+        const listDiv = document.getElementById('finalTestList');
+        wrongList.forEach((item, idx) => {
+            const opts = getOptionsForWord(item.rare, item.pos);
+            const wrapper = document.createElement('div'); wrapper.className = 'test-item';
+            wrapper.innerHTML = `<div><strong>${item.word}</strong> (${item.pos})</div><div style="background:#f1e7d9; padding:8px; border-radius:24px;">📖 ${item.example}</div><button class="help-btn" data-idx="${idx}">❓ Show translation</button><span id="trans_${idx}" style="margin-left:10px;"></span><div class="option-group" id="opts_${idx}"></div>`;
+            listDiv.appendChild(wrapper);
+            const optGroup = wrapper.querySelector(`#opts_${idx}`);
+            opts.forEach(opt => { const label = document.createElement('label'); label.className = 'option-label'; label.innerHTML = `<input type="radio" name="q_${idx}" value="${opt.replace(/"/g, '&quot;')}"> ${opt}`; optGroup.appendChild(label); });
+            wrapper.querySelector('.help-btn').onclick = () => { document.getElementById(`trans_${idx}`).innerText = `📖 Chinese: ${item.trans}`; setTimeout(()=>document.getElementById(`trans_${idx}`).innerText="",3000); };
+        });
+        document.getElementById('submitFinalAll').onclick = () => {
+            let correct=0;
+            wrongList.forEach((item,idx)=>{ const selected = document.querySelector(`input[name="q_${idx}"]:checked`); if(selected && selected.value === item.rare) correct++; });
+            const percent = Math.round((correct/wrongList.length)*100);
+            document.getElementById('finalResult').innerHTML = `<div style="background:#e9e0cf; border-radius:48px; padding:20px; margin-top:20px;"><h3>🎯 Review Score: ${correct} / ${wrongList.length} (${percent}%)</h3>${percent>=80 ? 'Great improvement!' : 'Review explanations and try again.'}</div>`;
+        };
+    }
+
+    // 首页蒙层
+    (function addSplashOverlay() {
+        const overlayDiv = document.createElement('div');
+        overlayDiv.className = 'intro-overlay';
+        overlayDiv.innerHTML = `<div class="intro-card" style="background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);"><h2>🕵️ MYSTERY MANSION<br>Hidden Meaning Detective</h2><div class="designer" style="font-size:1.1rem;">Designed by Mandy</div><button class="enter-btn" id="closeSplashBtn">🔓 ENTER THE MANSION</button></div>`;
+        document.body.appendChild(overlayDiv);
+        document.getElementById('closeSplashBtn').onclick = () => overlayDiv.remove();
+    })();
+
+    updateLobbyAndUnlock();
+    window.finalUnlocked = false;
+    document.getElementById('finalTestZone').innerHTML = `<div class="final-locked"><strong>🔒 FINAL EXAMINATION LOCKED</strong><br>Solve all three cases first to unlock the targeted review test!</div>`;
+</script>
+</body>
+</html>
